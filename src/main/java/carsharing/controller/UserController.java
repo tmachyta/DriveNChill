@@ -54,7 +54,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('CUSTOMER', 'MANAGER')")
     @PutMapping("/me/{id}")
-    @Operation(summary = "Get user by id", description = "Get available user by id")
+    @Operation(summary = "Update user by id", description = "update available user by id")
     public UserResponseDto updateUserInfo(@PathVariable Long id,
                                           @RequestBody @Valid UserRegistrationRequest request)
             throws RegistrationException {
@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
-    @PutMapping("/{id}/role")
+    @PutMapping("/role/{id}")
     @Operation(summary = "Update user role by id",
             description = "Update available user role by id")
     public UserResponseRoleDto updateUserRoleById(@PathVariable Long id,
@@ -71,7 +71,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
-    @PutMapping("/{email}/role")
+    @PutMapping("/role/{email}")
     @Operation(summary = "Update user role by email",
             description = "Update available user role by email")
     public UserResponseRoleDto updateUserRoleEmail(@PathVariable String email,

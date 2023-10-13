@@ -62,8 +62,8 @@ public class PaymentController {
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/user/{id}")
-    @Operation(summary = "Get payment by rentalId",
-            description = "Get available payment by rentalId")
+    @Operation(summary = "Get payment by userId",
+            description = "Get available payment by userId")
     public PaymentDto getPaymentByUserId(@PathVariable Long userId) {
         return paymentService.findPaymentByUserId(userId);
     }
