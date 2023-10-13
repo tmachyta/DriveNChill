@@ -1,14 +1,15 @@
 # 🏎🏎DriveNChill🏎🏎
 
-# Project decription:
+# Project Description:
 - 🫡Welcome to the DriveNChill project!🫡
-- 😉This is a web application that provides various features including authentication, registration, and CRUD (Create, Read, Update, Delete) operations😉
-- The project is built using the Hibernate and Spring frameworks, Spring Boot, which provide powerful tools for interacting with databases and developing robust web applications.
+- 😉This is a web application that provides various features, including authentication, registration, and CRUD (Create, Read, Update, Delete) operations😉
+- The project is built using the Hibernate and Spring frameworks, specifically Spring Boot, which provide powerful tools for interacting with databases and developing robust web applications.
+- Authentication is implemented using JWT (JSON Web Tokens) for secure and efficient user access.
 - Additionally, the project is integrated with Stripe, allowing seamless payment processing for car rentals.
 - Telegram notifications are also implemented to keep users and administrators informed about important events and updates.
 - The usage of Liquibase ensures efficient database management, while Docker simplifies deployment and containerization.
-- With the DriveNChill, users can enjoy a simplified and user-friendly experience while managing car-rental data and operations.
-  
+- With DriveNChill, users can enjoy a simplified and user-friendly experience while managing car-rental data and operations.
+
 ## Setup
 
 To set up the project, follow these steps:
@@ -89,7 +90,7 @@ To connect to your DB, you should replace PlaceHolders in .env and application.p
 - Create/update/remove a role
 - Get role by roleName
 
-# Controllers
+# Controllers 🕹
 
 ## Auth
 - Post - /register
