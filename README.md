@@ -69,7 +69,7 @@ To connect to your DB, you should replace PlaceHolders in .env and application.p
 
 ## Payment 💵
 - Create/update/remove a payment
-- Get all payments
+- Display all payments
 - Find payment by id
 - Find payment by rental id
 - Find payment by user id
@@ -78,7 +78,7 @@ To connect to your DB, you should replace PlaceHolders in .env and application.p
 - Handle canceled payment
 
 ## Rental 💵
-- Get all rentals
+- Display all rentals
 - Find rental by id
 - Find rental by car id
 - Find rental by user id
@@ -93,5 +93,39 @@ To connect to your DB, you should replace PlaceHolders in .env and application.p
 
 ## Auth
 - Post - /register
+- Post - /login
 
+## Car
+- Get | display all cars - /cars
+- Post | add car to repository - /cars
+- Get | find car by id - /cars/{id}
+- Delete | soft delete car by id - /cars{id}
+- Put | update - /cars{id}
+
+## User
+- Get | display all users - /users
+- Delete | soft delete user by id - /users/{id}
+- Get | find user information by id - /users/me/{id}
+- Put | update user information by id - /users/me/{id}
+- Put | update user role by id - /users/role/{id}
+- Put | update user role by email - /users/role/{email}
+
+## Rental
+- Get | display all rentals - /rentals
+- Post | save rental to repositort - /rentals
+- Get | find rental by id - /rentals/{id}
+- Get | find rental by car id - /rentals/car/{id}
+- Get | find rental by user id - /rentals/user/{id}
+- Put | update rental by id - /rentals/{id}
+- Delete | soft delete by id - /rentals/{id}
+
+## Payment
+- Get | display all payments - /payments
+- Post | save payment to repository - /payments
+- Get | find payment by id - /payments/{id}
+- Get | find payment by rental id - /payments/rental/{id}
+- Get | find payment by user id - /payments/user/{id}
+- Post | create success payment session - /payments/create-session
+- Get | get success payment session - /payments/success
+- Get | get cancel payment by id - /payments/cancel/{id}
 
