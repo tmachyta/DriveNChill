@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-rentals-users-table
+      author: carsharing
+      changes:
+        - createTable:
+            tableName: rentals_users
+            columns:
+              - column:
+                  name: rental_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: add-foreign-key-to-rentals
+      author: carsharing
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: rentals_users
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_rentals_users
