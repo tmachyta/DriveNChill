@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-payments-rentals-table
+      author: carsharing
+      changes:
+        - createTable:
+            tableName: payments_rentals
+            columns:
+              - column:
+                  name: payment_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: rental_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: add-foreign-key-to-payments
+      author: carsharing
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: payments_rentals
+            baseColumnNames: rental_id
+            referencedTableName: rentals
+            referencedColumnNames: id
+            constraintName: fk_payments_rentals
