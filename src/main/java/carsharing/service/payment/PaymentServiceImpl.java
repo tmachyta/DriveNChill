@@ -8,6 +8,7 @@ import carsharing.exception.EntityNotFoundException;
 import carsharing.mapper.payment.PaymentMapper;
 import carsharing.model.Payment;
 import carsharing.repository.payment.PaymentRepository;
+import carsharing.service.telegram.TelegramNotificationService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Value("${stripe.secretKey}")
     private String stripeSecretKey;
@@ -41,7 +43,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentDto save(CreateRequestPaymentDto requestDto) {
         Payment payment = paymentMapper.toModel(requestDto);
-        return paymentMapper.toDto(paymentRepository.save(payment));
+        Payment savedPayment = paymentRepository.save(payment);
+        telegramNotificationService.sendNotification(
+                "New payment saved " + savedPayment.getStatus());
+        return paymentMapper.toDto(savedPayment);
     }
 
     @Override
@@ -49,6 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(()
                         -> new EntityNotFoundException("Can't find payment by id " + id));
+        telegramNotificationService.sendNotification("Payment found: " + payment.getStatus());
         return paymentMapper.toDto(payment);
     }
 
@@ -57,6 +63,8 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findByRentalId(rentalId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Can't find payment by rentalId " + rentalId));
+        telegramNotificationService.sendNotification(
+                "Payment found by rental ID: " + payment.getStatus());
         return paymentMapper.toDto(payment);
     }
 
@@ -65,6 +73,8 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findByUserId(userId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Can;t find payment by userId" + userId));
+        telegramNotificationService.sendNotification(
+                "Payment found by user ID: " + payment.getStatus());
         return paymentMapper.toDto(payment);
     }
 
@@ -93,6 +103,7 @@ public class PaymentServiceImpl implements PaymentService {
             paymentDto.setAmount(BigDecimal.valueOf(10.00));
             paymentDto.setPaymentIntentId(paymentIntentId);
 
+            telegramNotificationService.sendNotification("Payment session created");
             return paymentDto;
         } catch (StripeException e) {
             throw new CustomPaymentException(
@@ -118,6 +129,8 @@ public class PaymentServiceImpl implements PaymentService {
             paymentDto.setCurrency(paymentIntent.getCurrency());
             paymentDto.setDescription(paymentIntent.getDescription());
 
+            telegramNotificationService.sendNotification(
+                    "Payment checked: " + paymentDto.getStatus());
             return paymentDto;
         } catch (StripeException e) {
             throw new CustomPaymentException(
@@ -132,13 +145,17 @@ public class PaymentServiceImpl implements PaymentService {
                         new EntityNotFoundException("Can't find payment by id " + id));
 
         if (payment == null) {
+            telegramNotificationService.sendNotification("Payment not found");
             return "Payment not found.";
         }
         if (payment.getStatus() == Payment.Status.PAID) {
+            telegramNotificationService.sendNotification("Payment has already been processed");
             return "Your payment has already been processed and marked as PAID.";
         } else if (payment.getStatus() == Payment.Status.PENDING) {
+            telegramNotificationService.sendNotification("Payment is pending");
             return "Your payment is currently pending. It will be processed soon.";
         } else {
+            telegramNotificationService.sendNotification("Unknown payment status");
             return "Payment status unknown. Please contact our support team for assistance.";
         }
     }

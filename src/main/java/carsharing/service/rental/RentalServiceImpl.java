@@ -12,6 +12,7 @@ import carsharing.model.User;
 import carsharing.repository.car.CarRepository;
 import carsharing.repository.rental.RentalRepository;
 import carsharing.repository.user.UserRepository;
+import carsharing.service.telegram.TelegramNotificationService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ public class RentalServiceImpl implements RentalService {
     private final RentalMapper rentalMapper;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Override
     public List<RentalDto> getAll(Pageable pageable) {
@@ -47,7 +49,9 @@ public class RentalServiceImpl implements RentalService {
         carRepository.save(car);
 
         Rental rental = rentalMapper.toModel(requestDto);
-        return rentalMapper.toDto(rentalRepository.save(rental));
+        Rental savedRental = rentalRepository.save(rental);
+        telegramNotificationService.sendNotification("New rental saved: " + savedRental.getId());
+        return rentalMapper.toDto(savedRental);
     }
 
     @Override
@@ -55,6 +59,7 @@ public class RentalServiceImpl implements RentalService {
         Rental rental = rentalRepository.findById(id)
                 .orElseThrow(()
                         -> new EntityNotFoundException("Can't find rental by id " + id));
+        telegramNotificationService.sendNotification("Rental found: " + rental.getId());
         return rentalMapper.toDto(rental);
     }
 
@@ -64,6 +69,7 @@ public class RentalServiceImpl implements RentalService {
         if (rental == null) {
             throw new EntityNotFoundException("Can't find rental by carId " + carId);
         }
+        telegramNotificationService.sendNotification("Rental found by carId: " + rental.getId());
         return rentalMapper.toDto(rental);
     }
 
@@ -73,6 +79,7 @@ public class RentalServiceImpl implements RentalService {
         if (rental == null) {
             throw new EntityNotFoundException("Can't find rental by userId " + userId);
         }
+        telegramNotificationService.sendNotification("Rental found by userId: " + rental.getId());
         return rentalMapper.toDto(rental);
     }
 
@@ -108,11 +115,13 @@ public class RentalServiceImpl implements RentalService {
         existedRental.setActualReturn(requestDto.getActualReturn());
         existedRental.setUser(user);
         existedRental.setCar(car);
+        telegramNotificationService.sendNotification("Rental returned: " + id);
         return rentalMapper.toDto(rentalRepository.save(existedRental));
     }
 
     @Override
     public void deleteById(Long id) {
+        telegramNotificationService.sendNotification("Rental deleted: " + id);
         rentalRepository.deleteById(id);
     }
 }
