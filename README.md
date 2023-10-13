@@ -31,7 +31,7 @@ Make sure you have the following software installed on your system:
 - past link, which you clone later
 
 ### Replace Placeholders:
-To connect to your DB, you should replace PlaceHolders in .env and application.properties
+To connect to your DB, Telegram and Stripe, you should replace PlaceHolders in .env and application.properties
 - Open package resources and open file env and application.properties in your project.
 - Locate the placeholders that need to be replaced.
 - These placeholders might include values such as
