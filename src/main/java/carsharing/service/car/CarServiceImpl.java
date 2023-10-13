@@ -6,6 +6,7 @@ import carsharing.exception.EntityNotFoundException;
 import carsharing.mapper.car.CarMapper;
 import carsharing.model.Car;
 import carsharing.repository.car.CarRepository;
+import carsharing.service.telegram.TelegramNotificationService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -16,11 +17,14 @@ import org.springframework.stereotype.Service;
 public class CarServiceImpl implements CarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Override
     public CarDto save(CreateCarRequestDto requestDto) {
         Car car = carMapper.toModel(requestDto);
-        return carMapper.toDto(carRepository.save(car));
+        Car savedCar = carRepository.save(car);
+        telegramNotificationService.sendNotification("New car created: " + savedCar.getModel());
+        return carMapper.toDto(savedCar);
     }
 
     @Override
@@ -35,12 +39,16 @@ public class CarServiceImpl implements CarService {
     public CarDto findById(Long id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Can't find car by id " + id));
+        telegramNotificationService.sendNotification("Car found: " + car.getModel());
         return carMapper.toDto(car);
     }
 
     @Override
     public void deleteById(Long id) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Can't find car by id " + id));
         carRepository.deleteById(id);
+        telegramNotificationService.sendNotification("Car deleted: " + car.getModel());
     }
 
     @Override
@@ -52,6 +60,10 @@ public class CarServiceImpl implements CarService {
         existedCar.setType(requestDto.getType());
         existedCar.setInventory(requestDto.getInventory());
         existedCar.setDailyFee(requestDto.getDailyFee());
-        return carMapper.toDto(carRepository.save(existedCar));
+
+        Car savedCar = carRepository.save(existedCar);
+
+        telegramNotificationService.sendNotification("Car updated: " + savedCar.getModel());
+        return carMapper.toDto(savedCar);
     }
 }

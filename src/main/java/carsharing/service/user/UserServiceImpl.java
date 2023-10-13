@@ -12,6 +12,7 @@ import carsharing.model.User;
 import carsharing.repository.role.RoleRepository;
 import carsharing.repository.user.UserRepository;
 import carsharing.service.role.RoleService;
+import carsharing.service.telegram.TelegramNotificationService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final RoleRepository roleRepository;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Override
     public UserResponseDto register(UserRegistrationRequest request) throws RegistrationException {
@@ -43,7 +45,9 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Role userRole = roleService.getRoleByRoleName(RoleName.CUSTOMER);
         user.setRoles(new HashSet<>(Set.of(userRole)));
-        return userMapper.toDto(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+        telegramNotificationService.sendNotification("New user registered " + savedUser.getEmail());
+        return userMapper.toDto(savedUser);
     }
 
     @Override
@@ -56,7 +60,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Can't find user by id " + id));
         userRepository.deleteById(id);
+        telegramNotificationService.sendNotification("User deleted: " + user.getEmail());
     }
 
     @Override
@@ -64,6 +72,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Can't find user by id " + id));
+        telegramNotificationService.sendNotification("User found: " + user.getEmail());
         return userMapper.toDto(user);
     }
 
@@ -78,7 +87,10 @@ public class UserServiceImpl implements UserService {
         Set<Role> roles = user.getRoles();
         roles.add(role);
         user.setRoles(roles);
-        return userMapper.toUserRoleResponse(userRepository.save(user));
+
+        User savedUser = userRepository.save(user);
+        telegramNotificationService.sendNotification("User updated" + savedUser.getEmail());
+        return userMapper.toUserRoleResponse(savedUser);
     }
 
     @Override
@@ -92,7 +104,9 @@ public class UserServiceImpl implements UserService {
         Set<Role> roles = user.getRoles();
         roles.add(role);
         user.setRoles(roles);
-        return userMapper.toUserRoleResponse(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+        telegramNotificationService.sendNotification("User role updated" + savedUser.getRoles());
+        return userMapper.toUserRoleResponse(savedUser);
     }
 
     @Override
@@ -108,7 +122,9 @@ public class UserServiceImpl implements UserService {
         existedUser.setPassword(passwordEncoder.encode(requestDto.getPassword()));
         existedUser.setFirstName(requestDto.getFirstName());
         existedUser.setLastName(requestDto.getLastName());
-        return userMapper.toDto(userRepository.save(existedUser));
+        User savedUser = userRepository.save(existedUser);
+        telegramNotificationService.sendNotification("User updated" + savedUser.getEmail());
+        return userMapper.toDto(savedUser);
     }
 }
 
